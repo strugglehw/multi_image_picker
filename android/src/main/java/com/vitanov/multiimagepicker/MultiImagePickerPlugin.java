@@ -35,6 +35,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import android.Manifest;
 import android.os.AsyncTask;
@@ -93,6 +94,7 @@ public class MultiImagePickerPlugin implements
     private final BinaryMessenger messenger;
     private Result pendingResult;
     private MethodCall methodCall;
+    static Map<String,MediaSelectorFile> info = new HashMap<String,MediaSelectorFile>();
 
     private MultiImagePickerPlugin(Activity activity, Context context, MethodChannel channel, BinaryMessenger messenger) {
         this.activity = activity;
@@ -172,15 +174,21 @@ public class MultiImagePickerPlugin implements
                 if (activity == null || activity.isFinishing()) return null;
 
                 Bitmap sourceBitmap = BitmapFactory.decodeFile(this.identifier);
-//                Bitmap bitmap = ThumbnailUtils.extractThumbnail(sourceBitmap, this.width, this.height, OPTIONS_RECYCLE_INPUT);
+                MediaSelectorFile file = MultiImagePickerPlugin.info.get(this.identifier);
+                if (file.isVideo){
+                    byteArray=readFileToByteArray(this.identifier);
+                }else{
+                    Bitmap bitmap = BitmapFactory.decodeFile(this.identifier);
+                    if (bitmap == null) return null;
 
-                if (sourceBitmap == null) return null;
+                    ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
+//                bitmap.compress(Bitmap.CompressFormat.JPEG, this.quality, bitmapStream);
+                    byteArray = bitmapStream.toByteArray();
+                    bitmap.recycle();
+                    bitmapStream.close();
+                }
 
-                ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
-//                sourceBitmap.compress(Bitmap.CompressFormat.JPEG, this.quality, bitmapStream);
-                byteArray = bitmapStream.toByteArray();
-                sourceBitmap.recycle();
-                bitmapStream.close();
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -229,14 +237,21 @@ public class MultiImagePickerPlugin implements
                 Activity activity = activityReference.get();
                 if (activity == null || activity.isFinishing()) return null;
 
-                Bitmap bitmap = BitmapFactory.decodeFile(this.identifier);
-                if (bitmap == null) return null;
 
-                ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
+                MediaSelectorFile file = MultiImagePickerPlugin.info.get(this.identifier);
+                if (file.isVideo){
+                    bytesArray=readFileToByteArray(this.identifier);
+                }else{
+                    Bitmap bitmap = BitmapFactory.decodeFile(this.identifier);
+                    if (bitmap == null) return null;
+
+                    ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
 //                bitmap.compress(Bitmap.CompressFormat.JPEG, this.quality, bitmapStream);
-                bytesArray = bitmapStream.toByteArray();
-                bitmap.recycle();
-                bitmapStream.close();
+                    bytesArray = bitmapStream.toByteArray();
+                    bitmap.recycle();
+                    bitmapStream.close();
+                }
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -256,7 +271,39 @@ public class MultiImagePickerPlugin implements
             }
         }
     }
+    static byte[] readFileToByteArray(String path) {
+        File file = new File(path);
+        if(!file.exists()) {
+            Log.e("","File doesn't exist!");
+            return null;
+        }
+        FileInputStream in = null;
+        try {
+            in =new FileInputStream(file);
+            long inSize = in.getChannel().size();//判断FileInputStream中是否有内容
+            if (inSize == 0) {
+                Log.d("","The FileInputStream has no content!");
+                return null;
+            }
 
+            byte[] buffer = new byte[in.available()];//in.available() 表示要读取的文件中的数据长度
+            in.read(buffer);  //将文件中的数据读到buffer中
+            return buffer;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            try {
+                in.close();
+            } catch (IOException e) {
+                return null;
+            }
+            //或IoUtils.closeQuietly(in);
+        }
+    }
     @Override
     public void onMethodCall(final MethodCall call, final Result result) {
 
@@ -296,7 +343,8 @@ public class MultiImagePickerPlugin implements
             final String identifier = call.argument("identifier");
 
             final Uri uri = Uri.parse(identifier);
-            try (InputStream in = context.getContentResolver().openInputStream(uri)) {
+            File file = new File(identifier);
+            try (InputStream in = new FileInputStream(file)) {
                 assert in != null;
                 ExifInterface exifInterface = new ExifInterface(in);
                 finishWithSuccess(getPictureExif(exifInterface, uri));
@@ -587,6 +635,7 @@ public class MultiImagePickerPlugin implements
                     map.put("name", file.fileName);
                     map.put("isVideo", file.isVideo? "0":"1");
                     result.add(map);
+                    info.put(file.filePath,file);
                 }
             }
             finishWithSuccess(result);
