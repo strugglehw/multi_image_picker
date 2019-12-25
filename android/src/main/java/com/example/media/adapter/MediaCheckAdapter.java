@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.example.media.OnRecyclerItemClickListener;
-import com.example.media.R;
+import com.vitanov.multiimagepicker.R;
 import com.example.media.bean.MediaSelectorFile;
 import com.example.media.utils.GlideUtils;
 

@@ -23,7 +23,7 @@ import com.bumptech.glide.Glide;
 import com.example.item.weight.TitleView;
 import com.example.media.MediaSelector;
 import com.example.media.OnRecyclerItemClickListener;
-import com.example.media.R;
+import com.vitanov.multiimagepicker.R;
 import com.example.media.adapter.MediaFileAdapter;
 import com.example.media.bean.MediaSelectorFile;
 import com.example.media.bean.MediaSelectorFolder;

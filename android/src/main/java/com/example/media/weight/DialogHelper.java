@@ -5,7 +5,7 @@ import android.content.DialogInterface;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
-import com.example.media.R;
+import com.vitanov.multiimagepicker.R;
 
 /**
  * 项  目 :  MediaSelector

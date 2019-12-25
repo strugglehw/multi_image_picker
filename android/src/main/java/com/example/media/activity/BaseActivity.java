@@ -7,7 +7,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import android.view.WindowManager;
 
-import com.example.media.R;
+import com.vitanov.multiimagepicker.R;
 import com.example.media.bean.MediaSelectorFile;
 import com.example.media.permission.PermissionActivity;
 import com.example.media.resolver.ActivityManger;

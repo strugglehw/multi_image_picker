@@ -11,7 +11,7 @@ import androidx.fragment.app.Fragment;
 import com.example.media.activity.MediaActivity;
 import com.example.media.bean.MediaSelectorFile;
 import com.example.media.resolver.Contast;
-
+import com.vitanov.multiimagepicker.R;
 import java.lang.ref.SoftReference;
 import java.util.List;
 

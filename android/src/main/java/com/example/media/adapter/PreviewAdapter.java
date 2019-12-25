@@ -10,7 +10,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 
-import com.example.media.R;
+import com.vitanov.multiimagepicker.R;
 import com.example.media.bean.MediaSelectorFile;
 import com.example.media.utils.GlideUtils;
 import com.example.media.utils.ScreenUtils;

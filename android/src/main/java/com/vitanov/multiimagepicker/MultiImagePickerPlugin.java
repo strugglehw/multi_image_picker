@@ -222,7 +222,6 @@ public class MultiImagePickerPlugin implements
 
         @Override
         protected ByteBuffer doInBackground(String... strings) {
-            final Uri uri = Uri.parse(this.identifier);
             byte[] bytesArray = null;
 
             try {
@@ -250,9 +249,11 @@ public class MultiImagePickerPlugin implements
 
         @Override
         protected void onPostExecute(ByteBuffer buffer) {
-            super.onPostExecute(buffer);
-            this.messenger.send("multi_image_picker/image/" + this.identifier + ".original", buffer);
-            buffer.clear();
+            if (buffer!=null){
+                super.onPostExecute(buffer);
+                this.messenger.send("multi_image_picker/image/" + this.identifier + ".original", buffer);
+                buffer.clear();
+            }
         }
     }
 
@@ -552,11 +553,8 @@ public class MultiImagePickerPlugin implements
     }
 
     private boolean uriExists(String identifier) {
-        Uri uri = Uri.parse(identifier);
-
-        String fileName = this.getFileName(uri);
-
-        return (fileName != null);
+        File file = new File(identifier);
+        return file.exists();
     }
 
     private void presentPicker(int maxImages, boolean enableCamera, ArrayList<String> selectedAssets, HashMap<String, String> options) {

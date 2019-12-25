@@ -23,7 +23,7 @@ import android.widget.Toast;
 import com.example.item.weight.TitleView;
 import com.example.media.MediaSelector;
 import com.example.media.OnRecyclerItemClickListener;
-import com.example.media.R;
+import com.vitanov.multiimagepicker.R;
 import com.example.media.adapter.MediaCheckAdapter;
 import com.example.media.adapter.PreviewAdapter;
 import com.example.media.bean.MediaSelectorFile;

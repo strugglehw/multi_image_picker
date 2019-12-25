@@ -15,7 +15,7 @@ import android.widget.TextView;
 import com.example.item.util.ScreenUtils;
 import com.example.media.MediaSelector;
 import com.example.media.OnRecyclerItemClickListener;
-import com.example.media.R;
+import com.vitanov.multiimagepicker.R;
 import com.example.media.bean.MediaSelectorFile;
 import com.example.media.utils.DateUtils;
 import com.example.media.utils.GlideUtils;

@@ -20,7 +20,7 @@ import android.widget.PopupWindow;
 
 import com.example.item.Contast;
 import com.example.media.OnRecyclerItemClickListener;
-import com.example.media.R;
+import com.vitanov.multiimagepicker.R;
 import com.example.media.adapter.MediaFolderAdapter;
 import com.example.media.bean.MediaSelectorFolder;
 import com.example.media.utils.ScreenUtils;
