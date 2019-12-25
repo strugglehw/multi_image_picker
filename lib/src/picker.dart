@@ -63,6 +63,7 @@ class MultiImagePicker {
           item['name'],
           item['width'],
           item['height'],
+          item['isVideo']
         );
         assets.add(asset);
       }

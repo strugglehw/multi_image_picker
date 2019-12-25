@@ -1,7 +1,6 @@
 import Flutter
 import UIKit
-import Photos
-import BSImagePicker
+import Photos 
 
 extension PHAsset {
     
@@ -146,7 +145,9 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
                 }, finish: { (assets: [PHAsset]) -> Void in
                     var results = [NSDictionary]();
                     for asset in assets {
+                        print("");
                         results.append([
+                            "isVedio":asset.mediaType == PHAssetMediaType.video ? "0":"1",
                             "identifier": asset.localIdentifier,
                             "width": asset.pixelWidth,
                             "height": asset.pixelHeight,

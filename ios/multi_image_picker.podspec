@@ -13,7 +13,7 @@ A new flutter plugin project.
   s.author           = { 'Tino' => 'xintaoxxxx@163.com' }
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
-  s.public_header_files = 'Classes/**/*.h'
+  s.public_header_files = 'Classes/**/*'
   s.dependency 'Flutter' 
 
   s.pod_target_xcconfig = { "DEFINES_MODULE" => "YES" }

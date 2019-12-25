@@ -15,12 +15,14 @@ class Asset {
 
   /// Original image height
   int _originalHeight;
-
+//资源是否是视频 0是视频 1不是是视频
+  int _isVideo;
   Asset(
     this._identifier,
     this._name,
     this._originalWidth,
     this._originalHeight,
+    this._isVideo,
   );
 
   /// The BinaryChannel name this asset is listening on.
@@ -61,7 +63,10 @@ class Asset {
   String get name {
     return _name;
   }
-
+//资源是否是视频 0是视频 1不是是视频
+  int get isVideo {
+    return _isVideo;
+  }
   /// Requests a thumbnail for the [Asset] with give [width] and [hegiht].
   ///
   /// The method returns a Future with the [ByteData] for the thumb,

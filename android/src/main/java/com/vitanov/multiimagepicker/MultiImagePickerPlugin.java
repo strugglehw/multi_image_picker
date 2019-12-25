@@ -16,13 +16,10 @@ import android.media.MediaScannerConnection;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 
-import com.sangcomz.fishbun.FishBun;
-import com.sangcomz.fishbun.FishBunCreator;
-import com.sangcomz.fishbun.adapter.image.impl.GlideAdapter;
-import com.sangcomz.fishbun.define.Define;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.FileNotFoundException;
@@ -51,6 +48,7 @@ import androidx.exifinterface.media.ExifInterface;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import android.text.TextUtils;
+import android.util.Log;
 
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
@@ -63,6 +61,11 @@ import io.flutter.plugin.common.PluginRegistry.Registrar;
 import static android.media.ThumbnailUtils.OPTIONS_RECYCLE_INPUT;
 import static com.vitanov.multiimagepicker.FileDirectory.getPath;
 import static java.util.Arrays.asList;
+
+import com.example.media.MediaSelector;
+import com.example.media.OnRecyclerItemClickListener;
+import com.example.media.bean.MediaSelectorFile;
+import com.example.media.resolver.Contast;
 
 /**
  * MultiImagePickerPlugin
@@ -168,15 +171,15 @@ public class MultiImagePickerPlugin implements
                 Activity activity = activityReference.get();
                 if (activity == null || activity.isFinishing()) return null;
 
-                Bitmap sourceBitmap = getCorrectlyOrientedImage(activity, uri);
-                Bitmap bitmap = ThumbnailUtils.extractThumbnail(sourceBitmap, this.width, this.height, OPTIONS_RECYCLE_INPUT);
+                Bitmap sourceBitmap = BitmapFactory.decodeFile(this.identifier);
+//                Bitmap bitmap = ThumbnailUtils.extractThumbnail(sourceBitmap, this.width, this.height, OPTIONS_RECYCLE_INPUT);
 
-                if (bitmap == null) return null;
+                if (sourceBitmap == null) return null;
 
                 ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, this.quality, bitmapStream);
+//                sourceBitmap.compress(Bitmap.CompressFormat.JPEG, this.quality, bitmapStream);
                 byteArray = bitmapStream.toByteArray();
-                bitmap.recycle();
+                sourceBitmap.recycle();
                 bitmapStream.close();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -227,12 +230,11 @@ public class MultiImagePickerPlugin implements
                 Activity activity = activityReference.get();
                 if (activity == null || activity.isFinishing()) return null;
 
-                Bitmap bitmap = getCorrectlyOrientedImage(activity, uri);
-
+                Bitmap bitmap = BitmapFactory.decodeFile(this.identifier);
                 if (bitmap == null) return null;
 
                 ByteArrayOutputStream bitmapStream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, this.quality, bitmapStream);
+//                bitmap.compress(Bitmap.CompressFormat.JPEG, this.quality, bitmapStream);
                 bytesArray = bitmapStream.toByteArray();
                 bitmap.recycle();
                 bitmapStream.close();
@@ -558,136 +560,39 @@ public class MultiImagePickerPlugin implements
     }
 
     private void presentPicker(int maxImages, boolean enableCamera, ArrayList<String> selectedAssets, HashMap<String, String> options) {
-        String actionBarColor = options.get("actionBarColor");
-        String statusBarColor = options.get("statusBarColor");
-        String lightStatusBar = options.get("lightStatusBar");
-        String actionBarTitle = options.get("actionBarTitle");
-        String actionBarTitleColor = options.get("actionBarTitleColor");
-        String allViewTitle =  options.get("allViewTitle");
-        String startInAllView = options.get("startInAllView");
-        String useDetailsView = options.get("useDetailsView");
-        String selectCircleStrokeColor = options.get("selectCircleStrokeColor");
-        String selectionLimitReachedText = options.get("selectionLimitReachedText");
-        String textOnNothingSelected = options.get("textOnNothingSelected");
-        String backButtonDrawable = options.get("backButtonDrawable");
-        String okButtonDrawable = options.get("okButtonDrawable");
-        String autoCloseOnSelectionLimit = options.get("autoCloseOnSelectionLimit");
-        ArrayList<Uri> selectedUris = new ArrayList<Uri>();
-
-        for (String path : selectedAssets) {
-            selectedUris.add(Uri.parse(path));
-        }
-
-        FishBunCreator fishBun = FishBun.with(MultiImagePickerPlugin.this.activity)
-                .setImageAdapter(new GlideAdapter())
-                .setMaxCount(maxImages)
-                .setCamera(enableCamera)
-                .setRequestCode(REQUEST_CODE_CHOOSE)
-                .setSelectedImages(selectedUris)
-                .exceptGif(true)
-                .setIsUseDetailView(useDetailsView.equals("true"))
-                .setReachLimitAutomaticClose(autoCloseOnSelectionLimit.equals("true"))
-                .isStartInAllView(startInAllView.equals("true"));
-
-        if (!textOnNothingSelected.isEmpty()) {
-            fishBun.textOnNothingSelected(textOnNothingSelected);
-        }
-
-        if (!backButtonDrawable.isEmpty()) {
-            int id = context.getResources().getIdentifier(backButtonDrawable, "drawable", context.getPackageName());
-            fishBun.setHomeAsUpIndicatorDrawable(ContextCompat.getDrawable(context, id));
-        }
-
-        if (!okButtonDrawable.isEmpty()) {
-            int id = context.getResources().getIdentifier(okButtonDrawable, "drawable", context.getPackageName());
-            fishBun.setDoneButtonDrawable(ContextCompat.getDrawable(context, id));
-        }
-
-        if (actionBarColor != null && !actionBarColor.isEmpty()) {
-            int color = Color.parseColor(actionBarColor);
-            if (statusBarColor != null && !statusBarColor.isEmpty()) {
-                int statusBarColorInt = Color.parseColor(statusBarColor);
-                if (lightStatusBar != null && !lightStatusBar.isEmpty()) {
-                    boolean lightStatusBarValue = lightStatusBar.equals("true");
-                    fishBun.setActionBarColor(color, statusBarColorInt, lightStatusBarValue);
-                } else {
-                    fishBun.setActionBarColor(color, statusBarColorInt);
-                }
-            } else {
-                fishBun.setActionBarColor(color);
-            }
-        }
-
-        if (actionBarTitle != null && !actionBarTitle.isEmpty()) {
-            fishBun.setActionBarTitle(actionBarTitle);
-        }
-
-        if (selectionLimitReachedText != null && !selectionLimitReachedText.isEmpty()) {
-            fishBun.textOnImagesSelectionLimitReached(selectionLimitReachedText);
-        }
-
-        if (selectCircleStrokeColor != null && !selectCircleStrokeColor.isEmpty()) {
-            fishBun.setSelectCircleStrokeColor(Color.parseColor(selectCircleStrokeColor));
-        }
-
-        if (actionBarTitleColor != null && !actionBarTitleColor.isEmpty()) {
-            int color = Color.parseColor(actionBarTitleColor);
-            fishBun.setActionBarTitleColor(color);
-        }
-
-        if (allViewTitle != null && !allViewTitle.isEmpty()) {
-            fishBun.setAllViewTitle(allViewTitle);
-        }
-
-        fishBun.startAlbum();
-
+        MediaSelector.MediaOptions mediaOptions = new MediaSelector.MediaOptions();
+        mediaOptions.isShowCamera = true;
+        mediaOptions.isShowVideo = true;
+        mediaOptions.isCompress = true;
+        mediaOptions.maxChooseMedia = 9;
+        mediaOptions.isCrop = false;
+        MediaSelector.with(MultiImagePickerPlugin.this.activity).setMediaOptions(mediaOptions).openMediaActivity();
     }
 
     @Override
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CODE_CHOOSE && resultCode == Activity.RESULT_CANCELED) {
+
+        if (requestCode ==  Contast.CODE_RESULT_MEDIA && resultCode == Activity.RESULT_CANCELED) {
             finishWithError("CANCELLED", "The user has cancelled the selection");
-        } else if (requestCode == REQUEST_CODE_CHOOSE && resultCode == Activity.RESULT_OK) {
-            List<Uri> photos = data.getParcelableArrayListExtra(Define.INTENT_PATH);
-            List<HashMap<String, Object>> result = new ArrayList<>(photos.size());
-            for (Uri uri : photos) {
-                HashMap<String, Object> map = new HashMap<>();
-                map.put("identifier", uri.toString());
-                InputStream is = null;
-                int width = 0, height = 0;
-
-                try {
-                    is = context.getContentResolver().openInputStream(uri);
-                    BitmapFactory.Options dbo = new BitmapFactory.Options();
-                    dbo.inJustDecodeBounds = true;
-                    dbo.inScaled = false;
-                    dbo.inSampleSize = 1;
-                    BitmapFactory.decodeStream(is, null, dbo);
-                    if (is != null) {
-                        is.close();
-                    }
-
-                    int orientation = getOrientation(context, uri);
-
-                    if (orientation == 90 || orientation == 270) {
-                        width = dbo.outHeight;
-                        height = dbo.outWidth;
-                    } else {
-                        width = dbo.outWidth;
-                        height = dbo.outHeight;
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
+        } else if (resultCode == Contast.CODE_RESULT_MEDIA && requestCode == Contast.CODE_REQUEST_MEDIA) {
+            List<MediaSelectorFile> mediaList = MediaSelector.resultMediaFile(data);
+            List<HashMap<String, Object>> result = new ArrayList<>(mediaList.size());
+            if (mediaList != null && mediaList.size() > 0) {
+                for (int i = 0; i < mediaList.size(); i++) {
+                    MediaSelectorFile file = mediaList.get(i);
+                    HashMap<String, Object> map = new HashMap<>();
+                    map.put("identifier", file.filePath);
+                    InputStream is = null;
+                    int width = 0, height = 0;
+                    map.put("width", file.width);
+                    map.put("height", file.height);
+                    map.put("name", file.fileName);
+                    map.put("isVideo", file.isVideo? "0":"1");
+                    result.add(map);
                 }
-
-                map.put("width", width);
-                map.put("height", height);
-                map.put("name", getFileName(uri));
-                result.add(map);
             }
             finishWithSuccess(result);
-            return true;
-        } else if (requestCode == REQUEST_CODE_GRANT_PERMISSIONS && resultCode == Activity.RESULT_OK) {
+        }else if (requestCode == REQUEST_CODE_GRANT_PERMISSIONS && resultCode == Activity.RESULT_OK) {
             int maxImages = (int) this.methodCall.argument(MAX_IMAGES);
             boolean enableCamera = (boolean) this.methodCall.argument(ENABLE_CAMERA);
             HashMap<String, String> options = this.methodCall.argument(ANDROID_OPTIONS);
@@ -793,7 +698,7 @@ public class MultiImagePickerPlugin implements
     }
 
     private static Bitmap getCorrectlyOrientedImage(Context context, Uri photoUri) throws IOException {
-        InputStream is = context.getContentResolver().openInputStream(photoUri);
+        InputStream is = new FileInputStream(photoUri.toString());
         BitmapFactory.Options dbo = new BitmapFactory.Options();
         dbo.inScaled = false;
         dbo.inSampleSize = 1;
